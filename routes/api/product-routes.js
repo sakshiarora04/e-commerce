@@ -9,7 +9,10 @@ router.get("/", async (req, res) => {
   // be sure to include its associated Category and Tag data
   try {
     const productData = await Product.findAll({
-      include:[{model:Category},{model:Tag, through:ProductTag, as:'product_tags'}]
+      include: [
+        { model: Category },
+        { model: Tag, through: ProductTag, as: "tags" },
+      ],
     });
     res.status(200).json(productData);
   } catch (err) {
@@ -18,14 +21,16 @@ router.get("/", async (req, res) => {
 });
 
 // get one product
-router.get("/:id", async(req, res) => {
+router.get("/:id", async (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
   try {
     const productData = await Product.findByPk(req.params.id, {
       // JOIN with Category, using the Tag through table
-      include:[{model:Category},{model:Tag, through:ProductTag, as:'product_tags'}]
-
+      include: [
+        { model: Category },
+        { model: Tag, through: ProductTag, as: "tags" },
+      ],
     });
 
     if (!productData) {
@@ -80,13 +85,12 @@ router.put("/:id", (req, res) => {
     },
   })
     .then((product) => {
-      console.log(product,req.body.tagIds);
       if (req.body.tagIds && req.body.tagIds.length) {
         ProductTag.findAll({
-          where: { product_id: req.params.id }
+          where: { product_id: req.params.id },
         }).then((productTags) => {
           // create filtered list of new tag_ids
-          const productTagIds = productTags.map(({ tagId }) =>tagId);
+          const productTagIds = productTags.map(({ tagId }) => tagId);
           const newProductTags = req.body.tagIds
             .filter((tag_id) => !productTagIds.includes(tag_id))
             .map((tag_id) => {
@@ -105,23 +109,25 @@ router.put("/:id", (req, res) => {
             ProductTag.bulkCreate(newProductTags),
           ]);
         });
+        // if(res.headersSent !== true) {
+        //   res.json("tag doesn't exist");
+        // }
+        //res.status(200).json({ message: `Success tags has been added to product id  ${req.params.id} ` });
       }
-
       return res.json(product);
     })
     .catch((err) => {
-      // console.log(err);
       res.status(500).json(err);
     });
 });
 
-router.delete("/:id", async(req, res) => {
+router.delete("/:id", async (req, res) => {
   // delete one product by its `id` value
   try {
     const productData = await Product.destroy({
       where: {
-        id: req.params.id
-      }
+        id: req.params.id,
+      },
     });
 
     if (!productData) {
