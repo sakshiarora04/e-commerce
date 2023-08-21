@@ -9,7 +9,9 @@
     "seed": "node seeds/index.js",
     "lint": "npx eslint ./**/*.js --quiet",
     "lint-fix": "npx eslint ./**/*.js --quiet --fix",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "prettier": "npx prettier ./**/*.js --check",
+    "prettier:fix": "npm run prettier -- --write"
   },
   "repository": {
     "type": "git",
@@ -19,13 +21,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^8.47.0",
+    "eslint": "^7.12.1",
     "eslint-config-google": "^0.14.0",
-    "nodemon": "^2.0.3"
+    "nodemon": "^2.0.3",
+    "eslint-config-prettier": "^6.15.0",
+    "prettier": "^2.1.2"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
-    "eslint-config-prettier": "^9.0.0",
     "express": "^4.17.1",
     "mysql2": "^2.1.0",
     "sequelize": "^5.21.7"
