@@ -90,9 +90,10 @@ router.delete("/:id", async (req, res) => {
   // delete a category by its `id` value
   try {
     // find category with all products in one category id
-    const cat = await Category.findByPk(req.params.id, { include: Product });
+    await Product.destroy({ where: { categoryId: req.params.id } });
+    //const cat = await Category.findByPk(req.params.id, { include: Product });
     // delete category
-    const categoryData= await cat.destroy();
+    const categoryData= await Category.destroy({ where: { id: req.params.id } });
     if (!categoryData) {
       res.status(404).json({ message: "No Category found with this id!" });
       return;
