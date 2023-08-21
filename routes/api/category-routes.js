@@ -1,27 +1,36 @@
 const router = require("express").Router();
+const sequelize = require('../../config/connection');
 const { Category, Product } = require("../../models");
-// const { Category, Product, ProductTag } = require("../../models");
+
 
 // The `/api/categories` endpoint
 
 router.get("/", async (req, res) => {
-  // find all categories
-  // be sure to include its associated Products
+  // find all categories including its associated Products
   try {
     const categoryData = await Category.findAll({
-      include: [{ model: Product }],
+      // JOIN with products
+      include: [
+        {
+          model: Product,
+          //attributes: ["id", "productName", "price", "stock", "categoryId"],
+        },
+      ],
       attributes: {
-        include: [
+        include:[
           [
-            sequelize.literal(`  (
-              SELECT COUNT(*)
-              FROM product AS pro
-              WHERE
-                  pro.category_id = 1
-          )`),
-            "Count",
-          ],
-        ],
+            // plain SQL to get a count of all products
+            sequelize.literal(
+              `( 
+                SELECT COUNT(*)
+                FROM product AS pro
+                WHERE
+                pro.category_id = category.id
+            )`
+            ),
+            'numberOfProducts'
+          ]
+        ]
       },
     });
     res.status(200).json(categoryData);
@@ -31,14 +40,13 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  // find one category by its `id` value
-  // be sure to include its associated Products
+  // find one category by its `id` value including its associated Products
   try {
     const categoryData = await Category.findByPk(req.params.id, {
-      // JOIN with travellers, using the Trip through table
+      // JOIN with product
       include: [{ model: Product }],
     });
-
+    // if no results found
     if (!categoryData) {
       res.status(404).json({ message: "No Category found with this id!" });
       return;
@@ -81,31 +89,12 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   // delete a category by its `id` value
   try {
-    // const categoryData = await Category.findByPk(req.params.id, {
-    //   // JOIN with Category, using the Tag through table
-    //   include: [{ model: Product}],
-    // });
-    // const categoryData = await Product.findAll({
-    //   where: {
-    //     category_id: req.params.id
-    //   }
-    // });
+    // find category with all products in one category id
     const cat = await Category.findByPk(req.params.id, { include: Product });
-    await cat.removeProducts(cat.products);
-    const categoryData = await Category.destroy({
-      where: {
-        id: req.params.id,
-      },
-    });
-    console.log(categoryData);
-    // const categoryData = await Category.destroy({
-    //   where: {
-    //     id: req.params.id,
-    //   }
-    // });
-    console.log(categoryData);
+    // delete category
+    const categoryData= await cat.destroy();
     if (!categoryData) {
-      res.status(404).json({ message: "No location found with this id!" });
+      res.status(404).json({ message: "No Category found with this id!" });
       return;
     }
     res.status(200).json(categoryData);

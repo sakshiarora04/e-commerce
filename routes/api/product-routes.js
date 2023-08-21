@@ -5,10 +5,10 @@ const { Product, Category, Tag, ProductTag } = require("../../models");
 
 // get all products
 router.get("/", async (req, res) => {
-  // find all products
-  // be sure to include its associated Category and Tag data
+  // find all products including its associated Category and Tag data
   try {
     const productData = await Product.findAll({
+      // JOIN with Category, using the Tag through junction table product_tag
       include: [
         { model: Category },
         { model: Tag, through: ProductTag, as: "tags" },
@@ -23,10 +23,10 @@ router.get("/", async (req, res) => {
 // get one product
 router.get("/:id", async (req, res) => {
   // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+  //  including its associated Category and Tag data
   try {
     const productData = await Product.findByPk(req.params.id, {
-      // JOIN with Category, using the Tag through table
+      // JOIN with Category, using the Tag through junction table product_tag
       include: [
         { model: Category },
         { model: Tag, through: ProductTag, as: "tags" },
@@ -72,7 +72,7 @@ router.post("/", (req, res) => {
     .then((productTagIds) => res.status(200).json(productTagIds))
     .catch((err) => {
       console.log(err);
-      res.status(400).json(err);
+      res.status(500).json(err);
     });
 });
 
@@ -109,10 +109,6 @@ router.put("/:id", (req, res) => {
             ProductTag.bulkCreate(newProductTags),
           ]);
         });
-        // if(res.headersSent !== true) {
-        //   res.json("tag doesn't exist");
-        // }
-        //res.status(200).json({ message: `Success tags has been added to product id  ${req.params.id} ` });
       }
       return res.json(product);
     })
