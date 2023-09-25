@@ -61,7 +61,7 @@ After following all steps of installation, it will get connected to server and r
 
 Link to walkthrough video in google drive:
 
-https://drive.google.com/file/d/1F4DvOIFXZra3MhcjpXFHKkW2ptlAiNKK/view
+https://drive.google.com/file/d/1ftvp_eKKsjcB2-skT58VWQ7bQEXCn3sh/view?usp=sharing
 
 The following images show the web application's appearance and functionality:
 
